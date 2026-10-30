@@ -65,7 +65,7 @@ homing_positive_dir: true    # Added to force homing to the right
 
 Note: The native Snapmaker _HOMING_PRECISE_COREXY_ADVANCED macro will automatically adapt and perform the diagonal squaring bump on the right side.
 
-Add the CUT_FILAMENT macro provided in /Software/Macros/CUT_FILAMENT.cfg to your printer.cfg.
+Add the CUT_FILAMENT macro provided in /Software/CUT_FILAMENT.cfg to your printer.cfg.
 
 
 ### 3. MultiACE Integration
