@@ -62,8 +62,12 @@ In your `printer.cfg`, update the `[stepper_x]` section:
 position_endstop: 271        # Moved from 0 to 271
 position_max: 271
 homing_positive_dir: true    # Added to force homing to the right
+homing_backoff_dist = -5
 
-Note: The native Snapmaker _HOMING_PRECISE_COREXY_ADVANCED macro will automatically adapt and perform the diagonal squaring bump on the right side.
+
+Comment (disable):
+HOMING_PRECISE_COREXY 
+macro will skip the diagonal squaring bump.
 
 Add the CUT_FILAMENT macro provided in /Software/CUT_FILAMENT.cfg to your printer.cfg.
 
