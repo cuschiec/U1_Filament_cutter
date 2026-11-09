@@ -5,15 +5,15 @@ Integrated mechanical filament cutter into toolhead and Klipper macros for the S
 
 Project **U1_Filament_cutter** brings a highly reliable, filament cutting mechanism directly to the Snapmaker U1 toolhead. Designed specifically to unlock flawless automated multi-color and multi-material printing when paired with external MMU systems (like the Anycubic ACE Pro 1/2 via the [MultiACE](https://github.com/decay71/multiACE) project).
 
-Relying on traditional pull-back retractions and tip forming for automated filament swaps often leads to stringing, clogging, and failed prints. By cutting the filament cleanly right above the hotend, **U1_Filament_cutter** ensures every filament swap is perfect, requiring zero tip-forming time.
+Relying on traditional pull-back retractions and tip forming for automated filament swaps often leads to stringing, clogging, and failed prints. By cutting the filament cleanly right above the hotend, **U1_Filament_cutter** ensures every filament swap is perfect, requiring less time than tip-forming.
 
 ---
 
 ## 🌟 Key Features
 
 * **Passive Actuation:** Zero electronics added to the toolhead. The cutter is purely mechanical, triggered by a precisely calculated kinematic collision with a frame-mounted block.
-* **Low Print Area Loss:** By defining a tiny "Bed Exclude Area", around 10x40mm, in your slicer, the reaction block sits safely in the front-left corner without sacrificing usable print volume.
-* **Firmware Integration:** Custom Klipper macros and Python patches to seamlessly override homing routines and integrate directly with the MultiACE toolchange sequence.
+* **Low Print Area Loss:** By defining a tiny "Bed Exclude Area", around 10x40mm, in your slicer, the reaction block sits safely in the rear-left corner (Y270) without sacrificing usable print volume.
+* **Firmware Integration:** Custom Klipper macros and Python patches to seamlessly integrate directly with the MultiACE toolchange sequence.
 
 ## ⚠️ Disclaimer
 **Use at your own risk.** This modification requires root access to your Snapmaker U1 and modifies core Klipper configuration files (`printer.cfg` and Python modules). Incorrect homing configurations can cause the toolhead to crash into the frame. Please read the instructions carefully.
@@ -27,20 +27,20 @@ Relying on traditional pull-back retractions and tip forming for automated filam
 3. Printed parts from the `/3D_Models/` folder (PETG-CF recommended).
    * 1x Backplate
    * 1x Blade holder
-   * 1x Blade lock
    * 1x Gear unlock lever
+   * 1x Cut block
 4. Hardware BOM:
    * 1x Cutter lever machined by alluminium or other harder material than 3d printed part
    * 1x Standard utility knife blade segment.
    * 1x Torsion spring (see `Docs/BOM.md` for specs).
-   * M3 screws x 8mm.
+   * M3 screws x 5mm.
 
 ---
 
 ## 🛠️ Hardware Installation
 
 1. **Toolhead Modification:** Assemble the printed cutter lever, spring, and blade. Mount it to the designated points on the U1 toolhead. Ensure the lever moves smoothly and springs back fully. (to be integrated by assembly guide)
-2. **Reaction Block:** Mount the printed passive reaction block to the front-left frame. (to be integrated by assembly guide)
+2. **Reaction Block:** Mount the printed passive reaction block to the rear-left frame. (to be integrated by assembly guide)
 
 *Please refer to `/Docs/Assembly_Guide.pdf` (or images) for detailed mechanical assembly.*
 
@@ -49,37 +49,53 @@ Relying on traditional pull-back retractions and tip forming for automated filam
 ## 💻 Software & Firmware Configuration
 ### 1. Slicer Setup (Bed Exclude Area)
 To prevent the printer from moving into the reaction block during normal printing, add a bed exclude area in Snapmaker Orca slicer.
-* Exclude a rectangle of **10mm (X) by 50mm (Y)** in the front-left corner (`X0 Y0`).
+* Exclude a rectangle of **10mm (X) by 40mm (Y)** in the rear-left corner (`X0 Y270`).
 * (to be integrated by SO setting image)
 
 
 ### 2. Klipper Configuration (`printer.cfg`)
-You must invert the X-axis homing direction to target the right side of the frame (`X=271`) to avoid crashing into the newly installed reaction block during startup.
+~~You must invert the X-axis homing direction to target the right side of the frame (`X=271`) to avoid crashing into the newly installed reaction block during startup.~~
+~~In your `printer.cfg`, update the `[stepper_x]` section:~~
+~~[stepper_x]~~
+~~position_endstop: 271        # Moved from 0 to 271~~
+~~position_max: 271~~
+~~homing_positive_dir: true    # Added to force homing to the right~~
+~~homing_backoff_dist = -5~~
+~~Comment (disable):~~
+~~HOMING_PRECISE_COREXY~~
+~~macro will skip the diagonal squaring bump.~~
+~~Add the CUT_FILAMENT macro provided in /Software/CUT_FILAMENT.cfg to your printer.cfg.~~
 
-In your `printer.cfg`, update the `[stepper_x]` section:
+New version of the filament Cutter block is placed in rear-left part of the printer, thanks to this no Homing routine have to be changed, and easiest configuration of the CUT MACRO is possible.
 
-[stepper_x]
-position_endstop: 271        # Moved from 0 to 271
-position_max: 271
-homing_positive_dir: true    # Added to force homing to the right
-homing_backoff_dist = -5
+In your `printer.cfg`, include the CUT_MACRO.cfg file, write at the end of file:
+[include CUT_MACRO.cfg] 
 
-
-Comment (disable):
-HOMING_PRECISE_COREXY 
-macro will skip the diagonal squaring bump.
-
-Add the CUT_FILAMENT macro provided in /Software/CUT_FILAMENT.cfg to your printer.cfg.
+Copy CUT_MACRO.cfg file into the root of your printer (use Fluidd to add the file)
 
 
-### 3. MultiACE Integration
+### 3. MultiACE Integration (thx to Decay71)
 (under development)
+Two parameter were added to the MultiACE software (from v1.30) to test it:
+* unload_cut_macro      gcode macro that cuts the filament at the toolhead
+                        (cutter mod), called instead of the tip forming,
+                        gets HEAD=n; background unloads then run inline
+  
+* unload_cut_heads      heads with a cutter, e.g. 1,2 (empty = all), the
+                        others keep the normal tip forming
+
+
 
 
 ### 4. Testing
-Test Homing: Send G28 X and keep your hand on the power switch. Ensure the toolhead homes to the right.
 
-Test Filament Cut: Load the modified toolhead. Send the CUT_FILAMENT command in fluidd terminal. The toolhead should reach setpoint temperature, perform a Z-hop, travel safely to the X/Y alignment coordinate, retract filament to have softer filament, push to the reaction to actuate the lever two time, and immediately retract. Disconnect PTFE from top of the toolhead to check the filament cut
+Test Filament Cut: 
+*Load the modified toolhead. 
+*Load filament from ACE (MultiACE page). 
+*Call for CUT_POSITION macro into Fluidd terminal, this macro will move the head near the cut block mounted on the frame, adjust the X position to be in the middle of the cutting lever and the Y position to have the cutting block just touching the cutter lever.
+*Note down the X-Y coordinate from Fluidd interface and update the CUT macro parameter.
+*Unload filament by MultiACE page.
+*The toolhead should perform a Z-hop, reach setpoint temperature, travel safely to the X/Y alignment coordinate, retract filament to have softer filament, push to the reaction to actuate the lever two time, and retract again out of the extruding gear. Disconnect PTFE from top of the toolhead to check the filament cut
 
 
 ## 🤝 Contributing
