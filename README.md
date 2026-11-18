@@ -16,7 +16,7 @@ Relying on traditional pull-back retractions and tip forming for automated filam
 * **Firmware Integration:** Custom Klipper macros and Python patches to seamlessly integrate directly with the MultiACE toolchange sequence.
 
 ## ⚠️ Disclaimer
-**Use at your own risk.** This modification requires root access to your Snapmaker U1 and modifies core Klipper configuration files (`printer.cfg` and Python modules). Incorrect homing configurations can cause the toolhead to crash into the frame. Please read the instructions carefully.
+**Use at your own risk.** This modification requires root access to your Snapmaker U1 and modifies core Klipper configuration files (`printer.cfg` and Python modules). Incorrect configurations can cause the toolhead to crash into the frame. Please read the instructions carefully.
 
 ---
 
@@ -28,50 +28,38 @@ Relying on traditional pull-back retractions and tip forming for automated filam
    * 1x Backplate
    * 1x Blade holder
    * 1x Gear unlock lever
+   * 1x Cutter lever (3D printed option not advised)
    * 1x Cut block
 4. Hardware BOM:
    * 1x Cutter lever machined by alluminium or other harder material than 3d printed part
-   * 1x Standard utility knife blade segment.
+   * 1x STANLEY 11-300 blade segment.
    * 1x Torsion spring (see `Docs/BOM.md` for specs).
    * M3 screws x 5mm.
+   * M3 screw x 8mm conic head.
 
 ---
 
-## 🛠️ Hardware Installation
+## 🛠️ Hardware Installation in short
 
-1. **Toolhead Modification:** Assemble the printed cutter lever, spring, and blade. Mount it to the designated points on the U1 toolhead. Ensure the lever moves smoothly and springs back fully. (to be integrated by assembly guide)
-2. **Reaction Block:** Mount the printed passive reaction block to the rear-left frame. (to be integrated by assembly guide)
+1. **Toolhead Modification:** Assemble the cutter lever, gear release lever, spring, blade together on the Backplate. Mount it to the U1 toolhead. Ensure the lever moves smoothly and springs back fully. (to be integrated by assembly guide)
+2. **Frame modification:** Mount the printed passive Cut block to the rear-left part of the frame. Part of side cover and top black frame have to be cut (to be integrated by assembly guide)
 
 *Please refer to `/Docs/Assembly_Guide.pdf` (or images) for detailed mechanical assembly.*
 
 ---
 
 ## 💻 Software & Firmware Configuration
-### 1. Slicer Setup (Bed Exclude Area)
+### 1. Snapmaker ORCA (Bed Exclude Area)
 To prevent the printer from moving into the reaction block during normal printing, add a bed exclude area in Snapmaker Orca slicer.
 * Exclude a rectangle of **10mm (X) by 40mm (Y)** in the rear-left corner (`X0 Y270`).
 * (to be integrated by SO setting image)
 
 
-### 2. Klipper Configuration (`printer.cfg`)
-~~You must invert the X-axis homing direction to target the right side of the frame (`X=271`) to avoid crashing into the newly installed reaction block during startup.~~
-~~In your `printer.cfg`, update the `[stepper_x]` section:~~
-~~[stepper_x]~~
-~~position_endstop: 271        # Moved from 0 to 271~~
-~~position_max: 271~~
-~~homing_positive_dir: true    # Added to force homing to the right~~
-~~homing_backoff_dist = -5~~
-~~Comment (disable):~~
-~~HOMING_PRECISE_COREXY~~
-~~macro will skip the diagonal squaring bump.~~
-~~Add the CUT_FILAMENT macro provided in /Software/CUT_FILAMENT.cfg to your printer.cfg.~~
+### 2. Klipper Configuration
+In your `printer.cfg`, include the Macro.cfg file, write at the end of file:
+[include Macro.cfg] 
 
-New version of the filament Cutter block is placed in rear-left part of the printer, thanks to this no Homing routine have to be changed, and easiest configuration of the CUT MACRO is possible.
-
-In your `printer.cfg`, include the CUT_MACRO.cfg file, write at the end of file:
-[include CUT_MACRO.cfg] 
-
-Copy CUT_MACRO.cfg file into the root of your printer (use Fluidd to add the file)
+Copy Macro.cfg file into the root of your printer (use Fluidd to add the file)
 
 
 ### 3. MultiACE Integration (thx to Decay71)
