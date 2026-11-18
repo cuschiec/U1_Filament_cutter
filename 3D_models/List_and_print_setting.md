@@ -28,8 +28,14 @@ this is the lever to unlock the filament from the extruding gear, it is independ
     Support Top interface spacing: 0.2mm
     Support Base pattern spacing: 1.0mm
 
-## 1x Cutter lever
-this is the cutter lever, I've tried to print it but PLA is too weak to do the work, so I decided to machine it from aluminum, but maybe harder material loaded with CF could do the trick
+## 1x Cutter lever PREFERABLE OPTION (aluminum milled)
+A simplified DXF file (reinforcement in the gear area is not needed) is loaded into the folder to mill the lever from aluminum or other material
+  ### Milling setting:
+    Main lever thickness: 6.0mm
+    Lever tail thickness: 3.4mm
+    
+## 1x Cutter lever OPTION TO BE TESTED: (3D printed, seems to be too weak)
+this is the cutter lever, I've tried to print it but PLA is too weak to do the work, so I decided to machine it from aluminum, but maybe harder material loaded with CF could do the trick. 
   ### Print setting: 
     Layer: 0.2mm 
     Perimeters: 5
