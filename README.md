@@ -12,11 +12,11 @@ Relying on traditional pull-back retractions and tip forming for automated filam
 ## 🌟 Key Features
 
 * **Passive Actuation:** Zero electronics added to the toolhead. The cutter is purely mechanical, triggered by a precisely calculated kinematic collision with a frame-mounted block.
-* **Low Print Area Loss:** By defining a tiny "Bed Exclude Area", around 10x40mm, in your slicer, the reaction block sits safely in the rear-left corner (Y270) without sacrificing usable print volume.
-* **Firmware Integration:** Custom Klipper macros and Python patches to seamlessly integrate directly with the MultiACE toolchange sequence.
+* **Low Print Area Loss:** By defining a tiny "Bed Exclude Area", around 10x35mm, in your slicer, the reaction block sits safely in the rear-left corner (Y270) without sacrificing usable print volume.
+* **Firmware Integration:** Custom Klipper macros to seamlessly integrate directly with the MultiACE or other MMU system toolchange sequence.
 
 ## ⚠️ Disclaimer
-**Use at your own risk.** This modification requires root access to your Snapmaker U1 and modifies core Klipper configuration files (`printer.cfg` and Python modules). Incorrect configurations can cause the toolhead to crash into the frame. Please read the instructions carefully.
+**Use at your own risk.** This hardware and software modification is provided "as is", with no warranty of any kind. By proceeding, you accept full responsibility for any damage to your printer or other equipment (including voided warranties), as well as any personal injury, cuts, burns, or property/bodily harm to yourself or others during assembly, calibration, or use. The author assumes no liability for direct or indirect damages. If you do not agree, do not proceed.
 
 ---
 
@@ -30,25 +30,24 @@ Relying on traditional pull-back retractions and tip forming for automated filam
    * 1x Gear unlock lever
    * 1x Cutter lever (3D printed option not advised)
    * 1x Cut block
+   * 1x Cut block nut
 4. Hardware BOM:
    * 1x Cutter lever machined by alluminium or other harder material than 3d printed part
    * 1x STANLEY 11-300 blade segment.
-   * 1x Torsion spring (see `Docs/BOM.md` for specs).
+   * 1x Torsion spring (see `Docs/Torsion_spring.md` for specs).
    * M3 screws x 5mm.
-   * M3 screw x 8mm conic head.
 
 ---
 
-## 🛠️ Hardware Installation in short
+## 🛠️ Hardware Installation in short (Please refer to the [Assembly Instructions](https://github.com/cuschiec/U1_Filament_cutter/blob/main/Docs/U1-Cut%20Modification%20Assembly%20Instructions.pdf))
 
 1. **Toolhead Modification:** Assemble the cutter lever, gear release lever, spring, blade together on the Backplate. Mount it to the U1 toolhead. Ensure the lever moves smoothly and springs back fully. (to be integrated by assembly guide)
 2. **Frame modification:** Mount the printed passive Cut block to the rear-left part of the frame. Part of side cover and top black frame have to be cut (to be integrated by assembly guide)
 
-*Please refer to `/Docs/Assembly_Guide.pdf` (or images) for detailed mechanical assembly.*
 
 ---
 
-## 💻 Software & Firmware Configuration
+## 💻 Software & Firmware Configuration in short (Please refer to the [Assembly Instructions](https://github.com/cuschiec/U1_Filament_cutter/blob/main/Docs/U1-Cut%20Modification%20Assembly%20Instructions.pdf))
 ### 1. Snapmaker ORCA (Bed Exclude Area)
 To prevent the printer from moving into the reaction block during normal printing, add a bed exclude area in Snapmaker Orca slicer.
 * Exclude a rectangle of **10mm (X) by 40mm (Y)** in the rear-left corner (`X0 Y270`).
@@ -80,10 +79,10 @@ Two parameter were added to the MultiACE software (from v1.30) to test it:
 Test Filament Cut: 
 *Load the modified toolhead. 
 *Load filament from ACE (MultiACE page). 
-*Call for CUT_POSITION macro into Fluidd terminal, this macro will move the head near the cut block mounted on the frame, adjust the X position to be in the middle of the cutting lever and the Y position to have the cutting block just touching the cutter lever.
-*Note down the X-Y coordinate from Fluidd interface and update the CUT macro parameter.
+*Jog the toolhead in front of the Cut block (around X7.5 Y269.9), adjust the Y position to be in the middle of the cutting lever and the X position to have the cutting block 0.2mm from the cutter lever (use a sheet of paper as reference of 0.2mm).
+*Note down the X-Y coordinate from Fluidd interface and update the CUT macro parameter then restart the printer.
 *Unload filament by MultiACE page.
-*The toolhead should perform a Z-hop, reach setpoint temperature, travel safely to the X/Y alignment coordinate, retract filament to have softer filament, push to the reaction to actuate the lever two time, and retract again out of the extruding gear. Disconnect PTFE from top of the toolhead to check the filament cut
+*The toolhead should reach setpoint temperature, travel safely to the X/Y alignment coordinate, retract filament to have softer filament, push to the reaction to actuate the lever three time, and retract again out of the extruding gear at this point MultiACE will Rollback filament.
 
 
 ## 🤝 Contributing
